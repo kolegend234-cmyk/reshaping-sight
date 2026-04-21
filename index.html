@@ -149,6 +149,7 @@ section:last-child { border-bottom: none; }
 .hero-image img {
   width: 100%; height: 100%;
   object-fit: cover;
+  object-position: 25% 28%;
   display: block;
   mix-blend-mode: multiply;
   filter: sepia(0.15) saturate(1.05) hue-rotate(-5deg);
@@ -512,6 +513,24 @@ section:last-child { border-bottom: none; }
 }
 .quiz-score.shown { display: block; }
 .quiz-score .big { font-size: 3.2rem; color: var(--highlight); display: block; font-variation-settings: 'opsz' 96; }
+.quiz-retake {
+  all: unset; cursor: pointer;
+  display: inline-block;
+  margin-top: 1.5rem;
+  padding: 0.7rem 1.6rem;
+  font-family: var(--mono);
+  font-size: 0.72rem;
+  font-weight: 500;
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+  color: var(--bg);
+  border: 1px solid var(--bg);
+  transition: background 0.25s ease, color 0.25s ease;
+}
+.quiz-retake:hover {
+  background: var(--bg);
+  color: var(--fg);
+}
 
 /* ===== Sources ===== */
 .sources ol { list-style: none; counter-reset: refs; font-size: 0.92rem; }
@@ -669,11 +688,11 @@ footer em { color: var(--accent); font-size: 1rem; }
       </div>
     </div>
     <div class="hero-image fade-in d2" aria-hidden="true">
-      <img src="https://images.unsplash.com/photo-1494869042583-f6c911f04b4c?auto=format&amp;fit=crop&amp;w=900&amp;q=80"
+      <img src="https://images.unsplash.com/photo-1516220362602-dba5272034e7?auto=format&amp;fit=crop&amp;w=900&amp;q=80"
            alt=""
            onerror="this.style.display='none'"
            loading="eager">
-      <span class="caption">human eye · macro</span>
+      <span class="caption">human eye · portrait</span>
     </div>
   </div>
 </section>
@@ -1659,7 +1678,7 @@ footer em { color: var(--accent); font-size: 1rem; }
 
     <div class="quiz-intro">
       <h2>Before the <em>exam</em>.</h2>
-      <p style="margin-top:1rem; font-size: 1.05rem;">Six quick questions drawn from everything above. Tap an answer to reveal the explanation.</p>
+      <p style="margin-top:1rem; font-size: 1.05rem;">Ten quick questions drawn from everything above. Tap an answer to reveal the explanation.</p>
     </div>
 
     <div id="quizContainer">
@@ -1667,8 +1686,9 @@ footer em { color: var(--accent); font-size: 1rem; }
     </div>
 
     <div class="quiz-score" id="quizScore">
-      <span class="big" id="quizScoreNum">0/6</span>
+      <span class="big" id="quizScoreNum">0/10</span>
       <span id="quizScoreLabel">Correct on first try</span>
+      <div><button class="quiz-retake" id="quizRetake" type="button">Retake the quiz</button></div>
     </div>
   </div>
 </section>
@@ -1679,7 +1699,6 @@ footer em { color: var(--accent); font-size: 1rem; }
     <div class="section-marker"><span class="idx">07</span> <span>References</span></div>
 
     <h2>Sources &amp; <em>Further Reading</em></h2>
-    <p style="margin-top:1.5rem; font-size: 1rem;">References formatted in APA 7th edition style. Each citation links to a primary source where possible.</p>
 
     <ol>
       <li>American Academy of Ophthalmology. (2024). <em>LASIK — Laser Eye Surgery</em>. American Academy of Ophthalmology. <a href="https://www.aao.org/eye-health/treatments/lasik" target="_blank" rel="noopener">https://www.aao.org/eye-health/treatments/lasik</a></li>
@@ -1689,6 +1708,11 @@ footer em { color: var(--accent); font-size: 1rem; }
       <li>Reinstein, D. Z., Archer, T. J., &amp; Gobbe, M. (2014). Small incision lenticule extraction (SMILE) history, fundamentals of a new refractive surgery technique and clinical outcomes. <em>Eye and Vision</em>, 1(1), 3.</li>
       <li>Mayo Clinic. (2024). <em>Cataract surgery</em>. Mayo Foundation for Medical Education and Research. <a href="https://www.mayoclinic.org/tests-procedures/cataract-surgery/about/pac-20384765" target="_blank" rel="noopener">https://www.mayoclinic.org/tests-procedures/cataract-surgery/about/pac-20384765</a></li>
       <li>Cleveland Clinic. (2023). <em>Cataract surgery</em>. <a href="https://my.clevelandclinic.org/health/treatments/21472-cataract-surgery" target="_blank" rel="noopener">https://my.clevelandclinic.org/health/treatments/21472-cataract-surgery</a></li>
+    </ol>
+
+    <h3 style="font-family: var(--display); font-size: 1.3rem; font-weight: 500; font-style: italic; margin-top: 3rem; margin-bottom: 1rem;">Image credit</h3>
+    <ol start="8">
+      <li>Dalbjörn, A. (2018). <em>Close-up photo of person's eye</em> [Photograph]. Unsplash. <a href="https://unsplash.com/photos/close-up-photo-of-persons-eye-fvInY-Gh7sc" target="_blank" rel="noopener">https://unsplash.com/photos/close-up-photo-of-persons-eye-fvInY-Gh7sc</a></li>
     </ol>
   </div>
 </section>
@@ -1902,35 +1926,89 @@ const quizData = [
     ],
     correct: 1,
     explain: 'The <strong>femtosecond laser</strong> makes incisions and fragments the lens. The <strong>phacoemulsification probe</strong> (ultrasound, ~40 kHz) then emulsifies and suctions out the fragments. The laser softens the lens first so less ultrasound energy is needed.'
+  },
+  {
+    q: 'How short is a single pulse from a femtosecond laser?',
+    options: [
+      'One-thousandth of a second',
+      'One-millionth of a second',
+      'One-quadrillionth of a second',
+      'One full second'
+    ],
+    correct: 2,
+    explain: 'A <strong>femtosecond</strong> is one-quadrillionth of a second (10⁻¹⁵ s). Each pulse is so short that it vaporizes a tiny pocket of tissue into plasma before any heat can spread to the surrounding cornea. That is why laser cuts are precise and cause no thermal damage.'
+  },
+  {
+    q: 'Why is SMILE sometimes preferred over LASIK for patients with dry eyes or thin corneas?',
+    options: [
+      'SMILE uses stronger medication to prevent dryness',
+      'SMILE uses a much faster laser',
+      'SMILE makes only a small 2–4 mm opening, leaving more corneal nerves and collagen fibers intact',
+      'SMILE is cheaper than LASIK'
+    ],
+    correct: 2,
+    explain: 'LASIK severs many corneal nerves and strong collagen fibers when it creates the flap. SMILE only makes a small 2–4 mm access incision, so far fewer nerves are cut and more of the cornea\'s original structural strength is preserved. This means less post-op dry eye and better mechanical integrity.'
+  },
+  {
+    q: 'In FLACS, what is an IOL and why is it needed?',
+    options: [
+      'An instrument used to cut the cornea',
+      'A synthetic lens inserted to replace the clouded natural lens that was removed',
+      'A drop that dissolves the cataract',
+      'The laser used to soften the lens'
+    ],
+    correct: 1,
+    explain: 'An <strong>IOL</strong> (intraocular lens) is a flexible acrylic or silicone disc folded up, inserted through the small corneal incision, and unfolded inside the empty lens capsule. Because the original lens has been removed, the IOL takes over its focusing role permanently.'
+  },
+  {
+    q: 'Why can LASIK and SMILE fix myopia, but neither can fix a cataract?',
+    options: [
+      'Cataracts only affect elderly patients who can\'t have surgery',
+      'Myopia is a cornea-shape problem; a cataract is a damaged lens that has to be replaced entirely',
+      'Cataracts require chemical treatment, not laser',
+      'LASIK and SMILE can fix cataracts; the question is incorrect'
+    ],
+    correct: 1,
+    explain: 'Myopia is a <em>geometry</em> problem: the cornea is too curved, so reshaping it fixes the focus. A cataract is a <em>material</em> problem: the proteins inside the lens have clumped and no amount of reshaping will make it clear again. The entire lens has to be removed and replaced with an artificial one.'
   }
 ];
 
 const quizContainer = document.getElementById('quizContainer');
-const answerState = new Map(); // question idx -> true/false (correct/incorrect on first try)
-let answeredCount = 0;
-
-quizData.forEach((item, i) => {
-  const card = document.createElement('div');
-  card.className = 'quiz-card';
-  card.innerHTML = `
-    <div class="quiz-q">
-      <span class="qnum">Question ${String(i+1).padStart(2,'0')}</span>
-      ${item.q}
-    </div>
-    <div class="quiz-options" id="qopts-${i}">
-      ${item.options.map((opt, j) =>
-        `<button class="quiz-opt" data-q="${i}" data-opt="${j}">${opt}</button>`
-      ).join('')}
-    </div>
-    <div class="quiz-explain" id="qexp-${i}">
-      ${item.explain}
-    </div>
-  `;
-  quizContainer.appendChild(card);
-});
-
 const quizScore = document.getElementById('quizScore');
 const quizScoreNum = document.getElementById('quizScoreNum');
+const quizRetakeBtn = document.getElementById('quizRetake');
+let answerState = new Map();
+let answeredCount = 0;
+
+function renderQuiz() {
+  quizContainer.innerHTML = '';
+  answerState = new Map();
+  answeredCount = 0;
+  quizScore.classList.remove('shown');
+  quizScoreNum.textContent = '0/' + quizData.length;
+
+  quizData.forEach((item, i) => {
+    const card = document.createElement('div');
+    card.className = 'quiz-card';
+    card.innerHTML = `
+      <div class="quiz-q">
+        <span class="qnum">Question ${String(i+1).padStart(2,'0')}</span>
+        ${item.q}
+      </div>
+      <div class="quiz-options" id="qopts-${i}">
+        ${item.options.map((opt, j) =>
+          `<button class="quiz-opt" data-q="${i}" data-opt="${j}">${opt}</button>`
+        ).join('')}
+      </div>
+      <div class="quiz-explain" id="qexp-${i}">
+        ${item.explain}
+      </div>
+    `;
+    quizContainer.appendChild(card);
+  });
+}
+
+renderQuiz();
 
 quizContainer.addEventListener('click', e => {
   const opt = e.target.closest('.quiz-opt');
@@ -1960,6 +2038,11 @@ quizContainer.addEventListener('click', e => {
       quizScore.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
   }
+});
+
+quizRetakeBtn.addEventListener('click', () => {
+  renderQuiz();
+  document.getElementById('quiz').scrollIntoView({ behavior: 'smooth', block: 'start' });
 });
 </script>
 
