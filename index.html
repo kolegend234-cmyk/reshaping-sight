@@ -53,6 +53,7 @@ body::before {
   z-index: 1;
   mix-blend-mode: multiply;
   opacity: 0.6;
+  will-change: transform;
 }
 nav, main, footer { position: relative; z-index: 2; }
 
@@ -103,7 +104,16 @@ nav {
   .brand { font-size: 1rem; }
 }
 @media (max-width: 520px) {
-  .nav-links a:nth-child(n+4) { display: none; }
+  /* Keep all links accessible on small screens — scroll horizontally instead of hiding */
+  .nav-links {
+    overflow-x: auto;
+    flex-wrap: nowrap;
+    white-space: nowrap;
+    padding-bottom: 4px;
+    scrollbar-width: thin;
+    -webkit-overflow-scrolling: touch;
+  }
+  .nav-links a { flex-shrink: 0; }
 }
 
 /* ===== Layout ===== */
@@ -1147,7 +1157,7 @@ footer em { color: var(--accent); font-size: 1rem; }
       </div>
       <div class="science-card">
         <div class="kicker">The Trade-Off</div>
-        <h3>Thinner Cornea, Weaker Mechanics</h3>
+        <h3>Thinner Cornea</h3>
         <p>LASIK permanently thins the cornea, usually by 60–120 micrometers. This is generally safe, but patients with already-thin corneas or irregularly shaped corneas (like keratoconus) are poor candidates. Long-term flap integrity under trauma also remains a mild concern.</p>
       </div>
     </div>
@@ -1862,6 +1872,44 @@ document.querySelectorAll('.step-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     setStep(btn.dataset.surgery, btn.dataset.step);
   });
+});
+
+// Arrow-key navigation: detect which surgery's procedure is currently in view,
+// then use left/right arrows to step through it
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'ArrowLeft' && e.key !== 'ArrowRight') return;
+  // Ignore if the user is typing in a form field
+  const tag = (e.target && e.target.tagName) || '';
+  if (tag === 'INPUT' || tag === 'TEXTAREA' || e.target.isContentEditable) return;
+
+  // Find which procedure stage is closest to the center of the viewport
+  const stages = document.querySelectorAll('.procedure');
+  const viewportCenter = window.innerHeight / 2;
+  let closest = null;
+  let closestDist = Infinity;
+  stages.forEach(stage => {
+    const rect = stage.getBoundingClientRect();
+    // Only consider procedures that are actually visible on screen
+    if (rect.bottom < 0 || rect.top > window.innerHeight) return;
+    const center = (rect.top + rect.bottom) / 2;
+    const dist = Math.abs(center - viewportCenter);
+    if (dist < closestDist) { closestDist = dist; closest = stage; }
+  });
+  if (!closest) return;
+
+  const surgery = closest.dataset.surgery;
+  const activeBtn = closest.querySelector('.step-btn.active');
+  if (!activeBtn) return;
+  const currentStep = Number(activeBtn.dataset.step);
+  const totalSteps = closest.querySelectorAll('.step-btn').length;
+
+  if (e.key === 'ArrowRight' && currentStep < totalSteps) {
+    e.preventDefault();
+    setStep(surgery, currentStep + 1);
+  } else if (e.key === 'ArrowLeft' && currentStep > 1) {
+    e.preventDefault();
+    setStep(surgery, currentStep - 1);
+  }
 });
 
 // ============ QUIZ ============
